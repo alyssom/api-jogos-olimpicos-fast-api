@@ -13,4 +13,5 @@ Siga as instruções abaixo para executar o projeto em sua máquina:
         > pip install virtualenv
         > source venv/bin/activate
         > pip install fastapi uicorn
-        > docker-compose up
+        > docker-compose up --build (somente a primeira vez para baixar as dependencias)
+        > uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
