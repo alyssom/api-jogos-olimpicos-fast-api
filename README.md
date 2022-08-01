@@ -10,8 +10,13 @@ Pré resitos:
 - Ter instalado o Docker em sua máquina;
 - Abrir o Docker Desktop;
 Execute no terminal na raiz do projeto e insira os seguintes comandos:
+
 > pip install virtualenv
+
 > source venv/bin/activate
+
 > pip install fastapi uicorn
+
 > docker-compose up --build (somente a primeira vez para baixar as dependencias)
+
 > uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
