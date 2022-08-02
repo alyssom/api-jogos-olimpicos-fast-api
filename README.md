@@ -22,3 +22,5 @@ Execute no terminal na raiz do projeto e insira os seguintes comandos:
 > uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
 
 - Após executar os comandos acima, caminhe até o diretório infra/ e execute o arquivo "create_data_base.py" este arquivo criará o banco de dados no SQLite e criará a primeira competição.
+
+- Para acessar os End-Points através do navegador acesse http://0.0.0.0/docs no seu browser e teste os mesmos através da interface do Swagger.
