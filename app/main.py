@@ -1,8 +1,8 @@
 from datetime import datetime
 
 import uvicorn
-from app.crud import busca_competicoes, cria_competicao
-from app.datatypes import CompeticaoRequest
+from app.crud import busca_competicoes, cria_competicao, cria_resltado_competicao
+from app.datatypes import CompeticaoRequest, ResultadoCompeticaoRequest
 
 from app.database import Base, SessionLocal
 from typing import Dict, Generator
@@ -43,14 +43,21 @@ def busca_todas_competicoes(db: Session = Depends(get_db)) -> Generator:
 def cadatrar_competicao(
     competicao: CompeticaoRequest, db: Session = Depends(get_db),
 ):
-    # if len(data_inicio) > 0:
-    #     data_inicio_split = data_inicio.split('/')
-    #     data_inicio_db = date(int(data_inicio_split[0]), int(data_inicio_split[1]), int(data_inicio_split[2]))
-    # if len(data_encerramento) > 0:
-    #     data_encerramento_split = data_inicio.split('/')
-    #     data_encerramento_db = date(int(data_encerramento_split[0]), int(data_encerramento_split[1]), int(data_encerramento_split[2]))
-    print(competicao)
     if result := cria_competicao(db, competicao):
+        return result
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST
+    )  
+
+@app.post(
+    "/resultado-competicao/", status_code=status.HTTP_201_CREATED,
+)
+def cadatrar_resultado_competicao(
+    resultado_competicao: ResultadoCompeticaoRequest, db: Session = Depends(get_db),
+):
+    print(resultado_competicao)
+    if result := cria_resltado_competicao(db, resultado_competicao):
         return result
 
     raise HTTPException(
