@@ -1,7 +1,10 @@
 from datetime import datetime
+import string
 
 import uvicorn
-from app.crud import busca_competicoes, cria_competicao, cria_resltado_competicao
+from app.crud import encerra_competicao
+from app.usecases import competicao_is_ativa_existente
+from app.crud import busca_todas_competicoes, cria_competicao, cria_resultado_competicao
 from app.datatypes import CompeticaoRequest, ResultadoCompeticaoRequest
 
 from app.database import Base, SessionLocal
@@ -10,6 +13,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import engine
+from app.usecases import valida_competicao_existente
 
 app = FastAPI()
 
@@ -28,8 +32,8 @@ def vida() -> Dict[str, datetime]:
     return {"timestamp": datetime.now()}
 
 @app.get("/competicoes/", status_code=status.HTTP_200_OK)
-def busca_todas_competicoes(db: Session = Depends(get_db)) -> Generator:
-    if result := busca_competicoes(db):
+def buscar_todas_competicoes(db: Session = Depends(get_db)) -> Generator:
+    if result := busca_todas_competicoes(db):
         return result
 
     raise HTTPException(
@@ -43,6 +47,9 @@ def busca_todas_competicoes(db: Session = Depends(get_db)) -> Generator:
 def cadatrar_competicao(
     competicao: CompeticaoRequest, db: Session = Depends(get_db),
 ):
+    is_competicao_invalida = competicao_is_ativa_existente(competicao.nome_competicao, db)
+    if is_competicao_invalida == True:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail = "A Competição ao qual você deseja cadastrar já esta cadastrada.") 
     if result := cria_competicao(db, competicao):
         return result
 
@@ -56,14 +63,35 @@ def cadatrar_competicao(
 def cadatrar_resultado_competicao(
     resultado_competicao: ResultadoCompeticaoRequest, db: Session = Depends(get_db),
 ):
-    print(resultado_competicao)
-    if result := cria_resltado_competicao(db, resultado_competicao):
+    is_competicao_invalida = valida_competicao_existente(resultado_competicao.nome_competicao, db)
+    if is_competicao_invalida.existente == False:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail = "A Competição ao qual você deseja cadastrar um resultado não existe.") 
+    if is_competicao_invalida.encerrada == True:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail = "A Competição ao qual você deseja cadastrar o resultado já foi encerrada.") 
+
+    if result := cria_resultado_competicao(db, resultado_competicao):
         return result
 
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST
     )  
 
+@app.put(
+    "/encerrar-competicao/", status_code=status.HTTP_201_CREATED,
+)
+def put_student(nome_competicao: str, db: Session = Depends(get_db)):
+    """
+    Atualiza os dados de um estudante, recebe o _id_  em `student_id` e a
+    lista de campos a modificar dentro do JSON (campos com valor `None`
+    serão ignorados).
+    """
+    if result := encerra_competicao(nome_competicao, db):
+        return result
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Competição 'id={nome_competicao}' não encontrado.",
+    )
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0")

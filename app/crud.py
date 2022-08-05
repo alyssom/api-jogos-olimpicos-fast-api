@@ -1,4 +1,6 @@
+from datetime import date, datetime
 from typing import Generator
+from sqlalchemy import null
 
 from sqlalchemy.orm import Session
 from app.datatypes import CompeticaoRequest, ResultadoCompeticaoRequest
@@ -13,7 +15,6 @@ def cria_competicao(db: Session, competicaoRequest: CompeticaoRequest):
     nova_competicao = Competicao()
     nova_competicao.nome_competicao = competicaoRequest.nome_competicao
     nova_competicao.data_inicio = competicaoRequest.data_inicio
-    nova_competicao.data_encerramento = competicaoRequest.data_encerramento
     db.add(nova_competicao)
     db.commit()
 
@@ -22,7 +23,7 @@ def cria_competicao(db: Session, competicaoRequest: CompeticaoRequest):
     return nova_competicao
 
 
-def cria_resltado_competicao(db: Session, resultadoCompeticaoRequest: ResultadoCompeticaoRequest):
+def cria_resultado_competicao(db: Session, resultadoCompeticaoRequest: ResultadoCompeticaoRequest):
     novo_resultado = ResultadoCompeticao()
     novo_resultado.nome_competicao_fk = resultadoCompeticaoRequest.nome_competicao
     novo_resultado.nome_atleta = resultadoCompeticaoRequest.nome_atleta
@@ -36,6 +37,30 @@ def cria_resltado_competicao(db: Session, resultadoCompeticaoRequest: ResultadoC
 
     return novo_resultado
 
+def encerra_competicao(
+    nome_competicao: str, db: Session
+):
+    """
+    Atualiza o registro de um estudante a partir do seu _id_ usando os
+    novos valores em `values`.
+    """
+    # verifica se o estudante existe...
+    if competicaodb := busca_competicao(nome_competicao, db):
+        # altera os valores e submete as alterações
+        data_encerramento = date.today()
+        db.query(competicao).filter(competicao.nome_competicao == nome_competicao).update({"data_encerramento": data_encerramento}, synchronize_session="fetch")
+        db.commit()
 
-def busca_competicoes(db: Session) -> Generator:
+        # atualiza o conteúdo antes de enviá-lo de volta
+        db.refresh(competicaodb)
+
+        return competicaodb
+
+def busca_todas_competicoes(db: Session) -> Generator:
     return db.query(competicao).all()
+
+def busca_resultado_competicao(nome_competicao: str, db: Session) -> Generator:
+    return db.query(resultadoCompeticao).filter(resultadoCompeticao.nome_competicao_fk == nome_competicao).first()
+
+def busca_competicao(nome_competicao: str, db: Session) -> Generator:
+    return db.query(competicao).filter(competicao.nome_competicao == nome_competicao).first()
