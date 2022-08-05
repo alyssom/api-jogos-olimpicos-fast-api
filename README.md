@@ -17,8 +17,6 @@ Execute no terminal na raiz do projeto e insira os seguintes comandos:
 
 > source venv/bin/activate
 
-> pip freeze > requirements.txt
-
 > docker-compose up --build (somente a primeira vez para baixar as dependencias)
 
 > FASTAPI__DATABASE=sqlite:///olimpiadas.db uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
