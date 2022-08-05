@@ -1,7 +1,8 @@
 from datetime import datetime
-import string
 
 import uvicorn
+from app.usecases import gera_resultado_competicao
+from app.crud import busca_resultado_competicao
 from app.crud import encerra_competicao
 from app.usecases import competicao_is_ativa_existente
 from app.crud import busca_todas_competicoes, cria_competicao, cria_resultado_competicao
@@ -62,7 +63,7 @@ def cadatrar_competicao(
 )
 def cadatrar_resultado_competicao(
     resultado_competicao: ResultadoCompeticaoRequest, db: Session = Depends(get_db),
-):
+):  
     is_competicao_invalida = valida_competicao_existente(resultado_competicao.nome_competicao, db)
     if is_competicao_invalida.existente == False:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail = "A Competição ao qual você deseja cadastrar um resultado não existe.") 
@@ -81,7 +82,8 @@ def cadatrar_resultado_competicao(
 )
 def encerrar_competicao(nome_competicao: str, db: Session = Depends(get_db)):
     if result := encerra_competicao(nome_competicao, db):
-        return result
+        resultado_final_competicao = gera_resultado_competicao(nome_competicao, db)
+        return resultado_final_competicao
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

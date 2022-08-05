@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from typing import Generator
 from sqlalchemy import null
 
@@ -64,3 +64,11 @@ def busca_resultado_competicao(nome_competicao: str, db: Session) -> Generator:
 
 def busca_competicao(nome_competicao: str, db: Session) -> Generator:
     return db.query(competicao).filter(competicao.nome_competicao == nome_competicao).first()
+
+def busca_resultado_final_competicao_tempo(nome_competicao: str, db: Session) -> Generator:
+    resultado = db.query(resultadoCompeticao).order_by(resultadoCompeticao.valor).filter(resultadoCompeticao.nome_competicao_fk == nome_competicao).all()
+    return resultado
+
+def busca_resultado_competicao_por_nome(nome_competicao: str, db: Session) -> Generator:
+    resultado = db.query(resultadoCompeticao).filter(resultadoCompeticao.nome_competicao_fk == nome_competicao).all()
+    return resultado
