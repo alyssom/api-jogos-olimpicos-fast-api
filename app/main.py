@@ -77,14 +77,9 @@ def cadatrar_resultado_competicao(
     )  
 
 @app.put(
-    "/encerrar-competicao/", status_code=status.HTTP_201_CREATED,
+    "/encerra-competicao/", status_code=status.HTTP_201_CREATED,
 )
-def put_student(nome_competicao: str, db: Session = Depends(get_db)):
-    """
-    Atualiza os dados de um estudante, recebe o _id_  em `student_id` e a
-    lista de campos a modificar dentro do JSON (campos com valor `None`
-    serão ignorados).
-    """
+def encerrar_competicao(nome_competicao: str, db: Session = Depends(get_db)):
     if result := encerra_competicao(nome_competicao, db):
         return result
 
