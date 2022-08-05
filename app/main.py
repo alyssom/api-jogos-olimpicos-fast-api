@@ -80,7 +80,7 @@ def cadatrar_resultado_competicao(
 @app.put(
     "/encerra-competicao/", status_code=status.HTTP_201_CREATED,
 )
-def encerrar_competicao(nome_competicao: str, db: Session = Depends(get_db)):
+def encerrar_competicao_retorna_resultado_final(nome_competicao: str, db: Session = Depends(get_db)):
     if result := encerra_competicao(nome_competicao, db):
         resultado_final_competicao = gera_resultado_competicao(nome_competicao, db)
         return resultado_final_competicao
