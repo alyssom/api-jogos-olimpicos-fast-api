@@ -1,12 +1,12 @@
 from datetime import datetime
 
 import uvicorn
-from app.usecases import valida_atleta
+from app.usecases import valida_atleta, valida_competicao_existe
 from app.usecases import gera_resultado_competicao
-from app.crud import busca_resultado_competicao
-from app.crud import encerra_competicao
+from app.dataprovider import busca_resultado_competicao
+from app.dataprovider import encerra_competicao
 from app.usecases import competicao_is_ativa_existente
-from app.crud import busca_todas_competicoes, cria_competicao, cria_resultado_competicao
+from app.dataprovider import busca_todas_competicoes, cria_competicao, cria_resultado_competicao
 from app.datatypes import CompeticaoRequest, ResultadoCompeticaoRequest
 
 from app.database import Base, SessionLocal
@@ -28,10 +28,9 @@ def get_db() -> Generator:
     finally:
         db.close()
 
-
-@app.get("/health/")
-def vida() -> Dict[str, datetime]:
-    return {"timestamp": datetime.now()}
+@app.get("/")
+def raiz():
+    return {"A API está no ar! Acesse /docs e tenha acesso ao Open API"}
 
 @app.get("/competicoes/", status_code=status.HTTP_200_OK)
 def buscar_todas_competicoes(db: Session = Depends(get_db)) -> Generator:
@@ -45,6 +44,10 @@ def buscar_todas_competicoes(db: Session = Depends(get_db)) -> Generator:
 
 @app.get("/competicao/{nome_competicao}/ranking", status_code=status.HTTP_200_OK)
 def buscar_ranking_competicao(nome_competicao: str, db: Session = Depends(get_db)) -> Generator:
+    is_competicao_invalida = valida_competicao_existe(nome_competicao, db)
+    if is_competicao_invalida == True:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail = "A Competição ao qual você deseja ver o Ranking ainda não foi cadastrada.") 
+    
     if result := gera_resultado_competicao(nome_competicao, db):
         return result
 

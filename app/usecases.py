@@ -1,13 +1,13 @@
 
-from app.crud import busca_resultado_parcial_competicao_metros_por_nome
-from app.crud import busca_resultado_parcial_competicao_tempo_por_nome
+from app.dataprovider import busca_resultado_parcial_competicao_metros_por_nome
+from app.dataprovider import busca_resultado_parcial_competicao_tempo_por_nome
 from app.datatypes import ResponseRanking
 from app.datatypes import ResultadoCompeticao
-from app.crud import busca_resultados_atleta_competicao
+from app.dataprovider import busca_resultados_atleta_competicao
 from app.datatypes import ResultadoCompeticaoRequest
-from app.crud import busca_resultado_final_competicao_metros, busca_resultado_final_competicao_tempo
-from app.crud import busca_resultado_competicao_por_nome
-from app.crud import busca_competicao
+from app.dataprovider import busca_resultado_final_competicao_metros, busca_resultado_final_competicao_tempo
+from app.dataprovider import busca_resultado_competicao_por_nome
+from app.dataprovider import busca_competicao
 from app.database import SessionLocal
 
 
@@ -38,6 +38,12 @@ def valida_atleta(resultado_competicao: ResultadoCompeticaoRequest, db: SessionL
         tentativa_atleta = busca_resultados_atleta_competicao(resultado_competicao.nome_atleta, resultado_competicao.nome_competicao, db)
         if len(tentativa_atleta) != 0:
             return True
+    return False
+
+def valida_competicao_existe(nome_competicao: str, db: SessionLocal):
+    result = busca_competicao(nome_competicao,db)
+    if result is None:
+        return True
     return False
 
 def gera_resultado_competicao(nome_competicao: str, db: SessionLocal):
