@@ -10,3 +10,15 @@ class ResultadoCompeticaoRequest(BaseModel):
     unidade: str
     valor: float
     nome_competicao: str
+
+class ResultadoCompeticao:
+    nome_atleta: str
+    valor: float
+
+    def __init__(self, nome_atleta, valor):
+        self.nome_atleta = nome_atleta
+        self.valor = valor
+    
+class ResponseRanking:
+    situacao: str
+    resultados: list = ResultadoCompeticao

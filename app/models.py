@@ -16,4 +16,5 @@ class ResultadoCompeticao(Base):
     nome_atleta = Column(String(50))
     unidade = Column(String(5))
     valor = Column(Float)
+    tentativa = Column(Integer)
     nome_competicao_fk = Column(String, ForeignKey("competicao.nome_competicao"))
